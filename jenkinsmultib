@@ -3,7 +3,7 @@ pipeline {
 	stages {
 		stage('Checkout') {
 			steps {
-				echo 'Running Checkout stage'
+				echo 'this is Checkout stage'
 			}
        when {
           branch 'main'
