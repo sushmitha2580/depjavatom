@@ -1,0 +1,26 @@
+node('agent1') {
+    
+    stage('Checkout') {
+        checkout([
+            $class: 'GitSCM', 
+            branches: [[name: 'main']], 
+            userRemoteConfigs: [[
+                credentialsId: 'github', 
+                url: 'https://github.com/sushmitha2580/java-example-artisan.git'
+            ]]
+        ])
+    }
+
+    stage('Test') {
+        echo "testing"
+    }
+
+    stage('Build') {
+        sh 'mvn clean package'
+    }
+
+    stage('Deploy') {
+        sh 'sudo cp /home/ubuntu/jenkins/workspace/depjavatom/target/*.war /home/ubuntu/tomcat/webapps/'
+        echo "deployed to tomcat successfully"
+    }
+}
