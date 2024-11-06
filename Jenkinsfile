@@ -6,7 +6,10 @@ pipeline {
     stages {
         stage('Checkout') {
             steps {
+
                 git branch: 'main', curl: 'https://github.com/sushmitha2580/java-example-artisan.git'
+
+            
             }
         }
         stage('Test') {
