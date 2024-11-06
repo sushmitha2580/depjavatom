@@ -75,4 +75,6 @@ pipeline{
               build status: '$BUILD_STATUS'
          ''', subject: '$JOB_NAME' , from: 'jenkins@example.com', to:'msushmithaaws@gmail.com'
 	}
+    }
 }
+
