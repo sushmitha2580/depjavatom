@@ -1,9 +1,5 @@
 pipeline{
  agent none
-   triggers{
-     cron '*/15 * * * *'  
-	 pollSCM '15 * * * *'
-   }
 	parameters {
        choice choices: ['dev', 'test', 'prod'], name: 'env'
        booleanParam defaultValue: 'true', name: 'my_boolean'
@@ -68,12 +64,9 @@ pipeline{
 	}
 	post{
 	 always{
-	    emailext body: '''
-              jobname : '$JOB_NAME'
-              build no: '$BUILD_NUMBER'
-              job URL: '$BUILD_URL'
-              build status: '$BUILD_STATUS'
-         ''', subject: '$JOB_NAME' , from: 'jenkins@example.com', to:'msushmithaaws@gmail.com'
+	    mail to: 'msushmithaaws@gmail.com',
+                 subject: "Pipeline Success: ${env.JOB_NAME} - Build #${env.BUILD_NUMBER}",
+                 body: "Good news! The pipeline ${env.JOB_NAME} build #${env.BUILD_NUMBER} succeeded.\nCheck the details at: ${env.BUILD_URL}"   
 	}
      }
 }
