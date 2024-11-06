@@ -1,0 +1,78 @@
+pipeline{
+ agent none
+   triggers{
+     cron '*/15 * * * *'  
+	 pollSCM '15 * * * *'
+   }
+	parameters {
+       choice choices: ['dev', 'test', 'prod'], name: 'env'
+       booleanParam defaultValue: 'true', name: 'my_boolean'
+       string defaultValue: 'sushmitha', name: 'user_name'
+     }
+	environment{
+	  Mystring="${params.user_name}"
+	  Mychoice="${params.env}"
+	  Myboolean="${params.my_boolean}"
+	  
+	  AWS_ACCESS_KEY=credentials('aws_access_key')
+	  GIT_HUB=credentials('gitpat')
+	}
+    stages{
+	   stage('checkout'){
+	      agent{label 'jenagent-1'}
+		    when{
+			   anyOf{
+			     branch 'master'
+			      branch 'Dev'
+				 }
+				} 
+	      steps{
+		      git branch: 'main', url: 'https://github.com/sushmitha2580/depjavatom.git' 
+			  echo "username is: $Mystring"
+			  echo "running job ${env.JOB_NAME}"
+			  echo "my boolean value=${params.myboolean}"
+			  echo "$AWS_ACCESS_KEY"		 			   
+			   }		 
+			 }
+	   stage('Test'){
+	       agent{label 'agent-2'}
+	        steps{
+			echo "the build id ${env.BUILD_ID}"
+			sh 'echo USERNAME:PASSWORD:: $GIT_HUB'
+			sh 'echo USERNAME: $GIT_HUB'
+			sh 'echo PASSWORD: $GIT_HUB'
+		 }
+	   }
+       stage('Build'){
+	       agent{label 'jenagent-1'}
+		     when{
+			   expression {( currentBuild.result == null || currentBuild.result == 'SUCCESS' )}
+			 }
+	        steps{
+             echo "the build is created: $Myboolean"
+             echo "the machine URL is machone ${env.JENKINS_URL}"
+			       echo "job URL: '$BUILD_URL'"        
+             echo "Jenkins URL: '$JENKINS_URL'" 
+
+		  }	   
+	   } 
+	    stage('Push'){
+		    agent{label 'agent-2'}
+		    when{
+			 expression {( currentBuild.result == null || currentBuild.result == 'SUCCESS' )}
+			}
+		  steps{
+		    echo "pushing artifact from jenkins to webapps"			
+		  }		
+		}    		 
+	}
+	post{
+	 always{
+	    emailext body: '''
+              jobname : '$JOB_NAME'
+              build no: '$BUILD_NUMBER'
+              job URL: '$BUILD_URL'
+              build status: '$BUILD_STATUS'
+         ''', subject: '$JOB_NAME' , from: 'jenkins@example.com', to:'msushmithaaws@gmail.com'
+	}
+}
